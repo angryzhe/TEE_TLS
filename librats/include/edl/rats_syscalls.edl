@@ -1,0 +1,17 @@
+enclave {
+	include "librats/rats_syscalls.h"
+
+	from "sgx_dummy.edl" import *;
+
+	untrusted {
+		void rats_ocall_exit(void);
+		void rats_ocall_cpuid([in, out] int *eax, [in, out] int *ebx, [in, out] int *ecx,
+				 [in, out] int *edx);
+		void rats_ocall_is_sgx_dev([in, out] bool *retval, [in, string] const char *dev);
+		void rats_ocall_print_string([in, string] const char *str);
+		void rats_ocall_getenv([in, string] const char *name, [out, size=len] char *value,
+				  size_t len);
+		void rats_ocall_current_time([out] double *time);
+		void rats_ocall_low_res_time([out] int *time);
+	};
+};

@@ -1,0 +1,42 @@
+name: Basic Compilation Check
+
+on: [push, pull_request]
+
+jobs:
+  basic_complication_check:
+    # Run all steps in the compilation testing containers
+    strategy:
+      matrix:
+        tag: [anolis8.6, ubuntu20.04]
+        build_mode: [host, occlum, sgx, tdx, wasm]
+
+    container: runetest/compilation-testing:${{ matrix.tag }}
+
+    # Use GitHub-hosted runner Ubuntu 20.04
+    runs-on: ubuntu-20.04
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - if: ${{ matrix.build_mode == 'wasm' }}
+        name: Run pre_build.sh (for wasm mode only)
+        run:
+          if [[ ${{ matrix.tag }} == ubuntu* ]]; then apt-get update && apt-get install -y python3 ; else dnf makecache && dnf install -y which python3 lbzip2 file ; fi && bash wasm/emscripten/pre_build.sh
+        env:
+          HOME: /root
+
+      - name: Compile "librats" ${{ matrix.build_mode }} mode
+        run:
+          if [[ ${{ matrix.build_mode }} == 'wasm' ]]; then 
+            export PS1=1 && source /root/.bashrc && cmake -DRATS_BUILD_MODE="${{ matrix.build_mode }}" -H. -Bbuild && make -C build all;
+          else
+            export PS1=1 && source /root/.bashrc && cmake -DRATS_BUILD_MODE="${{ matrix.build_mode }}" -DBUILD_SAMPLES=on -H. -Bbuild && make -C build all && make -C build install;
+          fi
+        env:
+          HOME: /root

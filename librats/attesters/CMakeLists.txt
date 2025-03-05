@@ -1,0 +1,27 @@
+add_subdirectory(nullattester)
+
+if(HOST)
+    add_subdirectory(sev)
+    if(EXISTS "/usr/include/linux/sev-guest.h")
+        add_subdirectory(sev-snp)
+    endif()
+    # disabled for envoy since SM3 is not supported in boringssl
+    # add_subdirectory(csv)
+endif()
+
+if(TDX)
+    add_subdirectory(tdx-ecdsa)
+endif()
+
+if(OCCLUM OR SGX)
+    include(FindSgxDcapQuoteVerify)
+    if(SGXDCAPQV_FOUND)
+        add_subdirectory(sgx-ecdsa)
+    else()
+        message(WARNING "It will not build sgx_ecdsa attester due to libsgx_dcap_quoteverify.so not found")
+    endif()
+endif()
+
+if(SGX)
+    add_subdirectory(sgx-la)
+endif()
