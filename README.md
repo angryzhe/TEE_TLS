@@ -1,10 +1,5 @@
-# 2024年全国大学生计算机系统能力大赛-操作系统设计赛(全国)-OS功能挑战赛道    
-## 队伍信息     
-- **队伍名称**: 半张烧焦队    
-- **成员**: 吴羽戴翔、孔玺畅、李文博    
-- **指导教师**: 魏成坤、张佳    
-- **学校**: 浙江大学      
-
+# 2025年全国大学生计算机系统能力大赛-操作系统设计赛(全国)-OS功能挑战赛道    
+    
 ## 赛题简介：    
 目前AIGC类推理服务型应用爆火，但目前所有推理服务几乎都面临如下安全风险:    
 1.大模型所在系统的安全问题，将导致大量高度机密和敏感的训练数据（如个人隐私数据和企业数据）以及高价值的模型参数信息被泄露。    
@@ -25,10 +20,10 @@ TEE安全可信网关组件应满足：
 在尽可能少甚至无需修改推理服务（作为C/S模型中的Server）和推理客户端（作为C/S模型中的Client，通常为REST API或Web UI前端等形式）的前提下，设计并实现一个TEE网关，实现安全可信的通信框架，不仅保证推理客户端和推理服务之间的通信内容安全，还能基于TEE远程证明过程验证运行在TEE内的推理服务的可信度。    
 
 ## 比赛题目分析+相关资料调研/项目简介：
-针对赛题目标，我们选择在[envoy开源网关 版本1.28.0-dev](https://github.com/inclavare-containers/envoy_librats/tree/706fe7871ab5fe631406db1e0fe5af1c4d0eb1b8)的基础上进行改造；由于赛题参考给出的[RATS-TLS技术](https://github.com/inclavare-containers/rats-tls)并不适用于envoy网关改造，所以选择了inclavare-containers下的[librats](https://github.com/inclavare-containers/librats)作为技术支持进行引入，将librats技术运用在网关上，并对其进行envoy的适配改造，同时修改envoy的transport socket上下文，将TEE远程证明与TLS相结合，实现网关之间可信信道的建立。
+选择在[envoy开源网关 版本1.28.0-dev](https://github.com/inclavare-containers/envoy_librats/tree/706fe7871ab5fe631406db1e0fe5af1c4d0eb1b8)的基础上进行改造；并选择了inclavare-containers下的[librats](https://github.com/inclavare-containers/librats)作为技术支持进行引入，将librats技术运用在网关上，并对其进行envoy的适配改造，同时修改envoy的transport socket上下文，将TEE远程证明与TLS相结合，实现网关之间可信信道的建立。
 
 ## 项目实现：
-我们将项目命名为HANG，取自Heterogeneous Authentication Network Gateway，旨在使用网关技术，满足在各种场景下（包括但不限于AIGC）的C/S模型通信需求，在不修改Client service和Server service的情况下，完成对可信信道的建立并基于TEE远程证明验证处于Server端推理服务可信度。项目同时做到了：    
+旨在使用网关技术，满足在各种场景下（包括但不限于AIGC）的C/S模型通信需求，在不修改Client service和Server service的情况下，完成对可信信道的建立并基于TEE远程证明验证处于Server端推理服务可信度。项目同时做到了：    
 - [x] 项目的TLS通信基于远程证明，C端可以验证S端身份信息和数据完整性。     
 - [x] 项目使用开源的librats作为远程证明组件，在envoy中修改TLS并完成远程证明    
 - [x] 项目支持SGX与TDX平台进行构建，项目基于TDX进行演示，SGX同理   
@@ -85,9 +80,9 @@ TEE安全可信网关组件应满足：
 具体修改内容可以大致参考commit 7d9da4e44eb006eb1ffb8015c91bdacbaf16d906。   
 
 ### 系统框架设计/demo框架：
-HANG结构图如下所示：  
+结构图如下所示：  
 ![HANG Structure](docs/pics/HANG.png "HANG Structure")     
-HANG过程如下：    
+过程如下：    
 1.C端向S端发起请求链接，通过向C端网关发起请求（demo中使用curl指令）    
 2.C端网关会将请求反向代理到S端网关      
 3.S端网关收到请求后，与C端网关完成TLS可信信道建立。在TLS第二次握手，S端网关会将Server service所处的TEE环境quote嵌入到X509证书的扩展部分，传递给C端网关；C端网关在接收到X509证书之后，会获取其扩展部分的TEE quote并进行远程证明，证明成功后，C端网关才会进行第三次TLS握手，否则链接建立失败。      
@@ -105,10 +100,9 @@ HANG过程如下：
 上图为连接建立后端C/S端网关输出信息，可以看到C端网关对TDX验证成功提示信息。      
 上述结果演示中，使用了-l off参数屏蔽了envoy的INFO输出，推荐使用-l debug参数显示DEBUG信息，我将TDX证书和密钥相关信息输出在了DEBUG信息中，可供验证。     
 
-演示视频请见：链接：https://pan.baidu.com/s/1IqKoisCbmNTdsSE-ETgpwA?pwd=4bdq
 
-## 构建指南
-详见[HANG/TDX/README.md](HANG/TDX/README.md)   
+
+ 
 
 ## 参考链接
 - https://github.com/envoyproxy/envoy     
@@ -117,18 +111,12 @@ HANG过程如下：
 - https://github.com/inclavare-containers/rats-tls    
 
 ## 比赛进展
-- 比赛过程中，和龙蜥社区出题方沟通良好，龙蜥社区提供了对应TDX设备供比赛使用，比赛期间对题目的细节和要求也和龙蜥社区不断核对，保持队伍对题目理解和出题方的要求一致。
 - 比赛过程中，和指导教师沟通顺利，导师也提供了许多技术上支持。
 - 项目开发过程中，和队伍成员沟通良好，各自分工，互相配合，较好地完成了比赛目标。
 
 ## 遇到的主要问题和解决方法
 - 比赛过程中，有很多技术和难点，包括但不限于对envoy对源码层面改造、对librats技术的引入和对其在envoy中对移植，还有TDX设备的使用和对应配置，再到dockerfile的构建和开发记录和文档撰写，整个过程遇到过非常多技术难点。
 - 遇到问题的时候，我们会优先自己调研，尝试查看网上是否有类似的解决办法，同时队员之间互相交流讨论，分享开发过程中遇到的难题和经验，一起克服开发困难，同时还会咨询导师，导师也会给出指导性方向和意见，交由我们自主调研。付诸时间和努力，一点一点克服困难。
-
-## 分工和协作
-- 源码框架分析和修改由队伍全员共同完成。其中，吴羽戴翔主要负责服务端代码撰写，孔玺畅负责客户端代码撰写，李文博负责librats移植和TLS源码上下文衔接。
-- 文档主要由吴羽戴翔撰写，链路部署相关由孔玺畅完成，测试运行和bug修正由李文博负责。
-- 比赛过程中的大家分工合作，共同完成。
 
 ## 比赛收获
 本次比赛中，我们不仅收获了对现有开源框架源码层面的阅读和修改经验，同时也对网关、TEE、librat、远程证明相关技术都有了更深刻的理解，还在比赛过程中不断交流和沟通，增加了大家对计算机领域知识系统性的理解，也有了和小组分工合作的经验，这次比赛收获非常丰富。
